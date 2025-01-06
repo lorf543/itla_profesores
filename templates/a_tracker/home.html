@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mt-4">
+  <h1>Lista de Grupos</h1>
+
+  <div class="table-container container">
+    <div class="mt-5">
+        <ul class="list-group">
+            {% for favorito in favoritos %}
+            <li class="list-group-item {% if favorito.conflicto %}bg-danger{% endif %}">
+              <strong>{{ favorito.grupo.profesor.nombre }}</strong> - 
+              {{ favorito.grupo.materia.nombre }}({{ favorito.grupo.grupo }})
+              <ul>
+                {% for horario in favorito.grupo.horarios.all %}
+                  <li class={{ horario.hora_inicio }}>
+                    <strong>{{ horario.dia|capfirst }}:</strong> {{ horario.hora_inicio }} - {{ horario.hora_fin }}
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No tienes grupos favoritos.</li>
+            {% endfor %}
+          </ul>
+    </div>
+
+    <table id="datatable1" class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Área</th>
+          <th>Materia</th>
+          <th>Grupo</th>
+          <th>Día</th>
+          <th>Horario</th>
+          <th>Favorito</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for grupo in grupos %}
+        <tr>
+          <td>{{ grupo.profesor.nombre }}</td>
+          <td>{{ grupo.profesor.area }}</td>
+          <td>{{ grupo.materia.nombre }}</td>
+          <td>{{ grupo.grupo }}</td>
+          <td>
+            {% for horario in grupo.horarios.all %}
+              {{ horario.dia|capfirst }}<br />
+            {% endfor %}
+          </td>
+          <td>
+            {% for horario in grupo.horarios.all %}
+              {{ horario.hora_inicio }} - {{ horario.hora_fin }}<br />
+            {% endfor %}
+          </td>
+          <td>
+            {% if grupo.id in request.session.favoritos %}
+            <form action="{% url 'toggle_favorito' grupo.id %}" method="post" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">
+                <i class="fa fa-heart-broken"></i> Quitar
+              </button>
+            </form>
+            {% else %}
+            <form action="{% url 'toggle_favorito' grupo.id %}" method="post" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success btn-sm">
+                <i class="fa fa-heart"></i> Agregar
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock content %}
